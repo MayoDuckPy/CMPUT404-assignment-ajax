@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 # Copyright 2013 Abram Hindle
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ class World:
 
     def __init__(self):
         self.clear()
-        
+
     def update(self, entity, key, value):
         entry = self.space.get(entity, dict())
         entry[key] = value
@@ -51,21 +51,21 @@ class World:
 
     def get(self, entity):
         return self.space.get(entity, dict())
-    
+
     def world(self):
         return self.space
 
 # you can test your webservice from the commandline
-# curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
+# curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}'
 
-myWorld = World()          
+myWorld = World()
 
 @app.route("/")
 def hello():
     '''Show main content'''
     return render_template('index.html')
 
-@app.route("/entity/<entity>", methods=['POST','PUT'])
+@app.route("/entity/<entity>", methods=['POST', 'PUT'])
 def update(entity):
     '''update the entities via this interface'''
     # Assumes entities don't have an enforced schema
@@ -79,18 +79,18 @@ def update(entity):
 
     return data
 
-@app.route("/world", methods=['POST','GET'])    
+@app.route("/world", methods=['POST', 'GET'])
 def world():
     '''Return the world'''
     # No specification on handling POST and GET so just return world
     return myWorld.world()
 
-@app.route("/entity/<entity>")    
+@app.route("/entity/<entity>")
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
     return myWorld.get(entity)
 
-@app.route("/clear", methods=['POST','GET'])
+@app.route("/clear", methods=['POST', 'GET'])
 def clear():
     '''Clear the world out!'''
     # Again, no specification on handling POST and GET so both behave the same
