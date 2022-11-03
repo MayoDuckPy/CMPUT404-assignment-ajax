@@ -10,6 +10,4 @@ Make a shared state AJAX drawing program
 Contributors / Licensing
 ========================
 
-Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
-
-
+Generally everything is LICENSE'D under the Apache 2 license by Michael Huang.
