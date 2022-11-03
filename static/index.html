@@ -107,8 +107,12 @@ function drawNextFrame() {
     drawNext = true;
 }
 
-// This optionally draws the frame, call this if you're not sure if you should update
-// the canvas
+/* This optionally draws the frame, call this if you're not sure if you should
+ * update the canvas.
+ *
+ * NOTE: drawFrame() cannot be used with async functions unless drawNext is is
+ *       set atomically.
+*/
 function drawFrame() {
     if (drawNext) {
         renderFrame();
@@ -119,20 +123,20 @@ function drawFrame() {
 // This is unpleasent, canvas clicks are not handled well
 // So use this code, it works well on multitouch devices as well.
 function getPosition(e) {
-	if ( e.targetTouches && e.targetTouches.length > 0) {
+	if (e.targetTouches && e.targetTouches.length > 0) {
 		let touch = e.targetTouches[0];
 		let x = touch.pageX  - canvas.offsetLeft;
 		let y = touch.pageY  - canvas.offsetTop;
 		return [x, y];
-	} else {
-		let rect = e.target.getBoundingClientRect();
-		let x = e.offsetX || e.pageX - rect.left - window.scrollX;
-		let y = e.offsetY || e.pageY - rect.top  - window.scrollY;
-
-		x = e.pageX  - canvas.offsetLeft;
-		y = e.pageY  - canvas.offsetTop;
-		return [x, y];
 	}
+
+    let rect = e.target.getBoundingClientRect();
+    let x = e.offsetX || e.pageX - rect.left - window.scrollX;
+    let y = e.offsetY || e.pageY - rect.top  - window.scrollY;
+
+    x = e.pageX  - canvas.offsetLeft;
+    y = e.pageY  - canvas.offsetTop;
+    return [x, y];
 }
 
 
@@ -146,10 +150,8 @@ async function addEntity(entity, data) {
         body: JSON.stringify(data)
     });
 
-    if (res.status === 200 && await res.json() != {}) {
+    if (res.status === 200 && await res.json() != {})
         world[entity] = data;
-        drawNextFrame();
-    }
 }
 
 let counter = 0;
@@ -184,9 +186,9 @@ mouse = (function() {
             let y = pos[1];
             if (x >= 0 && x <= W && y >= 0 && y <= H) {
                 return 1;
-            } else {
-                return 0;
             }
+
+            return 0;
         },
         mousedown: function(e) {
             e.preventDefault();
@@ -275,7 +277,7 @@ async function update() {
         world = await res.json();
     }
 
-    drawFrame();
+    renderFrame();
 }
 
 // 30 frames per second
