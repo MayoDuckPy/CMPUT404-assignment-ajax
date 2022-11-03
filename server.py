@@ -20,12 +20,11 @@
 # remember to:
 #     pip install flask
 
+from flask import Flask, request, render_template
 
-import flask
-from flask import Flask, request
-import json
 app = Flask(__name__)
 app.debug = True
+app.template_folder = 'static'
 
 # An example world
 # {
@@ -34,11 +33,13 @@ app.debug = True
 # }
 
 class World:
+    __slots__ = ['space']
+
     def __init__(self):
         self.clear()
         
     def update(self, entity, key, value):
-        entry = self.space.get(entity,dict())
+        entry = self.space.get(entity, dict())
         entry[key] = value
         self.space[entity] = entry
 
@@ -49,7 +50,7 @@ class World:
         self.space = dict()
 
     def get(self, entity):
-        return self.space.get(entity,dict())
+        return self.space.get(entity, dict())
     
     def world(self):
         return self.space
@@ -59,42 +60,42 @@ class World:
 
 myWorld = World()          
 
-# I give this to you, this is how you get the raw body/data portion of a post in flask
-# this should come with flask but whatever, it's not my project.
-def flask_post_json():
-    '''Ah the joys of frameworks! They do so much work for you
-       that they get in the way of sane operation!'''
-    if (request.json != None):
-        return request.json
-    elif (request.data != None and request.data.decode("utf8") != u''):
-        return json.loads(request.data.decode("utf8"))
-    else:
-        return json.loads(request.form.keys()[0])
-
 @app.route("/")
 def hello():
-    '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    '''Show main content'''
+    return render_template('index.html')
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    # Assumes entities don't have an enforced schema
+    # Assumes request data is json-compatible
+    data = request.json if request.json else {}
+    if request.method == 'POST':
+        myWorld.set(entity, data)
+    elif request.method == 'PUT':
+        for key, val in data.items():
+            myWorld.update(entity, key, val)
+
+    return data
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
-    '''you should probably return the world here'''
-    return None
+    '''Return the world'''
+    # No specification on handling POST and GET so just return world
+    return myWorld.world()
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    return myWorld.get(entity)
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    # Again, no specification on handling POST and GET so both behave the same
+    myWorld.clear()
+    return myWorld.world()
 
 if __name__ == "__main__":
     app.run()
